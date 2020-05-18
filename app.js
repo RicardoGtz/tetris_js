@@ -1,4 +1,5 @@
-document.addEventListener("DOMContentLoaded", () => {  
+document.addEventListener("DOMContentLoaded", () => {
+//CONSTANTS
   const SCORE_DISPLAY = document.querySelector("#score");
   const START_BTN = document.querySelector("#start-button");
   const COLOR_LIST = [
@@ -79,19 +80,18 @@ document.addEventListener("DOMContentLoaded", () => {
   let nextTetrominoGrid = Array.from(
     document.querySelectorAll(".nextTetrinomio div")
   );
-
   let currentPosition = 4;
   let currentRotation = 0;
-
-  //Randomly select a Tetromino
   let grid = document.querySelector(".grid");
   let random = 0;
   let current = [];
   let currentID = 0;
   let nextTetromino = [];
   let nextID = 0;
-  let score=0;
+  let score = 0;
   let timerId;
+  
+  //Create a new Tetromino
   createNextTetromino();
   startNewTetromino();
 
@@ -188,8 +188,9 @@ document.addEventListener("DOMContentLoaded", () => {
       current.forEach((index) =>
         squares[index + currentPosition].classList.add("taken")
       );
-      addScore();
-      startNewTetromino();
+      addScore();     
+      startNewTetromino();    
+      gameOver();  
     }
   }
 
@@ -208,14 +209,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   //Controlls
   document.addEventListener("keydown", (event) => {
-    if (event.keyCode === 87) {
-      rotateTeromino();
-    } else if (event.keyCode === 65) {
-      moveTetromino(LEFT_MOVE);
-    } else if (event.keyCode === 68) {
-      moveTetromino(RIGHT_MOVE);
-    } else if (event.keyCode === 83) {
-      moveTetrominoDown();
+      if(timerId){
+        if (event.keyCode === 87) {
+        rotateTeromino();
+        } else if (event.keyCode === 65) {
+        moveTetromino(LEFT_MOVE);
+        } else if (event.keyCode === 68) {
+        moveTetromino(RIGHT_MOVE);
+        } else if (event.keyCode === 83) {
+        moveTetrominoDown();
+        }
     }
   });
 
@@ -224,17 +227,29 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 0; i < 199; i += WIDTH) {
       const row = [];
       for (let j = 0; j < 10; j++) row.push(i + j);
-      
-      if(row.every(index=>squares[index].classList.contains('taken'))){
-          score +=10;
-          SCORE_DISPLAY.innerHTML=score;
-          row.forEach(index => {
-            squares[index].className='';
-          });
-        const squaresRemoved=squares.splice(i,WIDTH);
-        squares=squaresRemoved.concat(squares)
-        squares.forEach(cell=>grid.appendChild(cell))
+
+      if (row.every((index) => squares[index].classList.contains("taken"))) {
+        score += 10;
+        SCORE_DISPLAY.innerHTML = score;
+        row.forEach((index) => {
+          squares[index].className = "";
+        });
+        const squaresRemoved = squares.splice(i, WIDTH);
+        squares = squaresRemoved.concat(squares);
+        squares.forEach((cell) => grid.appendChild(cell));
       }
+    }
+  }
+  //Game over function
+  function gameOver() {
+    if (
+      current.some((index) =>
+        squares[currentPosition + index].classList.contains("taken")
+      )
+    ) {
+      SCORE_DISPLAY.innerHTML = "Game Over: " + SCORE_DISPLAY.innerHTML;
+      clearInterval(timerId);
+      timerId=null;
     }
   }
 });
